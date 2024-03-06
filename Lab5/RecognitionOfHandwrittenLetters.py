@@ -1,3 +1,12 @@
+# Working with the TenzorFlow library.
+# Recognition of handwritten letters
+
+# Task:
+#   1. Connect the TenzorFlow library.
+#   2. Perform image detection and recognition.
+#   3. Connect the MNIST database
+
+
 import os
 import cv2
 import numpy as np
@@ -28,8 +37,6 @@ if train_new_model:
     model.add(tf.keras.layers.Dense(units=128, activation=tf.nn.relu))  # Added layer
     model.add(tf.keras.layers.Dense(units=10, activation=tf.nn.softmax))
 
-
-
     # Compiling and optimizing model
     model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
@@ -42,10 +49,11 @@ if train_new_model:
     print(val_acc)
 
     # Saving the model
-    model.save('handwritten_digits.model')
+    model.save('path/to/handwritten_digits.h5')  # or use '.keras' extension if preferred
+
 else:
     # Load the model
-    model = tf.keras.models.load_model('handwritten_digits.model')
+    model = tf.keras.models.load_model('path/to/handwritten_digits.model')
 
 # Create a drawing window
 canvas = np.ones((300, 300), dtype="uint8") * 255
@@ -53,6 +61,7 @@ cv2.namedWindow("Digit Drawing")
 
 # Flag to indicate drawing
 drawing = False
+
 
 # Mouse callback function
 def draw(event, x, y, flags, param):
@@ -65,6 +74,7 @@ def draw(event, x, y, flags, param):
     elif event == cv2.EVENT_MOUSEMOVE:
         if drawing:
             cv2.circle(canvas, (x, y), 15, (0, 0, 0), -1)
+
 
 # Set the callback function for mouse events
 cv2.setMouseCallback("Digit Drawing", draw)
@@ -88,6 +98,7 @@ for _ in range(10):
     # Preprocess the drawn image for prediction
     img = cv2.resize(canvas, (28, 28))
     img = np.invert(np.array([img]))
+    img = tf.keras.utils.normalize(img, axis=1)
 
     # Predict the number
     prediction = model.predict(img)
